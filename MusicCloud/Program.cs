@@ -20,6 +20,13 @@ builder.Services.AddDbContext<SoundCloudAuthDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// config identity
+builder.Services.AddIdentityCore<IdentityUser>()
+	.AddRoles<IdentityRole>()
+	.AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("SoundCloud")
+	.AddEntityFrameworkStores<SoundCloudAuthDbContext>()
+	.AddDefaultTokenProviders();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
 	options.Password.RequireDigit = true;
@@ -28,6 +35,15 @@ builder.Services.Configure<IdentityOptions>(options =>
 	options.Password.RequireUppercase = true;
 	options.Password.RequiredLength = 6;
 	options.Password.RequiredUniqueChars = 1;
+});
+
+// Allow all method
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAll", builder =>
+	{
+		builder.AllowAnyMethod();
+	});
 });
 
 
