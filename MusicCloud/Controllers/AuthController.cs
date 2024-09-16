@@ -20,26 +20,43 @@ namespace MusicCloud.API.Controllers
 		[Route("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequest)
 		{
-			var identityUser = new IdentityUser
-			{
-				UserName = registerRequest.Username,
-				Email = registerRequest.Email
-			};
 
-			var identityResult = await userManager.CreateAsync(identityUser, registerRequest.Password);
-
-			if (identityResult.Succeeded)
+			try
 			{
-				// Add roles for user
-				if (registerRequest.Roles != null && registerRequest.Roles.Any())
+				var userExisted = await userManager.FindByEmailAsync(registerRequest.Email);
+				if (userExisted == null)
 				{
-					identityResult = await userManager.AddToRolesAsync(identityUser, registerRequest.Roles);
+
+					// User is not existed.
+					var identityUser = new IdentityUser
+					{
+						UserName = registerRequest.Username,
+						Email = registerRequest.Email
+					};
+
+					var identityResult = await userManager.CreateAsync(identityUser, registerRequest.Password);
 
 					if (identityResult.Succeeded)
 					{
-						return Created();
+						// Add roles for user
+						if (registerRequest.Roles != null && registerRequest.Roles.Any())
+						{
+							identityResult = await userManager.AddToRolesAsync(identityUser, registerRequest.Roles);
+
+							if (identityResult.Succeeded)
+							{
+								
+								return Created();
+							}
+						}
 					}
+				} else
+				{
+					return BadRequest("User is already existed!");
 				}
+			}
+			catch (Exception ex)
+			{
 			}
 			return BadRequest("Something went wrong!");
 		}
