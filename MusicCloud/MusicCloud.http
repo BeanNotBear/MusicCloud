@@ -1,6 +1,0 @@
-@MusicCloud_HostAddress = http://localhost:5185
-
-GET {{MusicCloud_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
